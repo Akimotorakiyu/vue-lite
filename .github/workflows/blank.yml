@@ -23,7 +23,7 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
     - uses: sergioramos/yarn-actions@v6
-
+    - run: yarn
     # Runs a single command using the runners shell
     - name: test
       run: yarn test
