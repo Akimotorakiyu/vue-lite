@@ -12,6 +12,7 @@ const targetMap = new WeakMap<object, KeyToDepMap>();
 let activeEffect: ReactiveEffect | undefined;
 // 临时存储依赖的函数栈
 const effectStack: ReactiveEffect[] = [];
+let id = 0;
 
 //
 function trigger<T extends object, N, O>(
@@ -21,6 +22,7 @@ function trigger<T extends object, N, O>(
   oldValue: O
 ) {
   const depMaps = targetMap.get(target);
+
   if (!depMaps) {
     return;
   }
@@ -85,7 +87,7 @@ export function reactive<T extends object>(target: T) {
     console.warn(`value cannot be made reactive: ${String(target)}`);
     return target;
   }
-  
+
   const obsver: T = new Proxy(target, {
     get(target, key, receiver) {
       const value = Reflect.get(target, key, receiver);
@@ -153,7 +155,6 @@ function createReactiveEffect<T>(
     if (!effect.active) {
       return options.scheduler ? undefined : fn(...args);
     }
-
     if (!effectStack.includes(effect)) {
       cleanup(effect);
       try {
@@ -168,6 +169,11 @@ function createReactiveEffect<T>(
     }
   } as ReactiveEffect<T>;
 
+  effect.id = id++;
+  effect.active = true;
+  effect.relayedInDependencies = [];
+  effect.rawFunction = fn;
+  effect.options = options;
   return effect;
 }
 
@@ -178,7 +184,6 @@ export function effect<T>(
   const effect = isReactiveEffect(fn)
     ? createReactiveEffect(fn.rawFunction, options)
     : createReactiveEffect(fn, options);
-
   if (!options.lazy) {
     effect();
   }
