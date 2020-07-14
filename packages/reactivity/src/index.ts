@@ -32,12 +32,7 @@ function reactive<T extends object>(target: T) {
       const has = Reflect.has(target, key);
       track();
       return has;
-    },
-    ownKeys(target) {
-      const keys = Reflect.ownKeys(target);
-      track();
-      return keys;
-    },
+    }
   });
 }
 
