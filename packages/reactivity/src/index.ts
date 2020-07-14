@@ -1,11 +1,17 @@
 import { isObject } from "./share";
+import { KeyToDepMap, ProxyHandlerKey } from "./type";
 
 //
-function trigger<T, K, N, O>(target: T, key: K, newValue: N, oldValue: O) {}
-function track<T, K>(target: T, key: K) {}
+function trigger<T extends object, N, O>(
+  target: T,
+  key: ProxyHandlerKey,
+  newValue: N,
+  oldValue: O
+) {}
+function track<T extends object>(target: T, key: ProxyHandlerKey) {}
 
 function reactive<T extends object>(target: T) {
-  if (isObject(target)) {
+  if (!isObject(target)) {
     console.warn(`value cannot be made reactive: ${String(target)}`);
     return target;
   }
@@ -35,6 +41,8 @@ function reactive<T extends object>(target: T) {
     },
   });
 }
+
+const targetMap = new WeakMap<object, KeyToDepMap>();
 
 function effect(fn: () => void) {
   return function reactiveEffect() {};
