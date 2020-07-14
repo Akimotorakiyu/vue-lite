@@ -80,13 +80,13 @@ function track<T extends object>(target: T, key: ProxyHandlerKey) {
   }
 }
 
-function reactive<T extends object>(target: T) {
+export function reactive<T extends object>(target: T) {
   if (!isObject(target)) {
     console.warn(`value cannot be made reactive: ${String(target)}`);
     return target;
   }
-
-  return new Proxy(target, {
+  
+  const obsver: T = new Proxy(target, {
     get(target, key, receiver) {
       const value = Reflect.get(target, key, receiver);
       track(target, key);
@@ -110,6 +110,8 @@ function reactive<T extends object>(target: T) {
       return has;
     },
   });
+
+  return obsver;
 }
 
 /**
@@ -129,7 +131,7 @@ function cleanup(effect: ReactiveEffect) {
   effect.relayedInDependencies = [];
 }
 
-function stop(effect: ReactiveEffect) {
+export function stop(effect: ReactiveEffect) {
   if (effect.active) {
     cleanup(effect);
     if (effect.options.onStop) {
@@ -169,7 +171,7 @@ function createReactiveEffect<T>(
   return effect;
 }
 
-function effect<T>(
+export function effect<T>(
   fn: ReactiveEffect<T> | ((...args) => T),
   options: ReactiveEffectOptions = {}
 ) {
@@ -183,7 +185,10 @@ function effect<T>(
   return effect;
 }
 
-function computed<T>(getter: (ctx: any) => T, setter?: (value: T) => void) {
+export function computed<T>(
+  getter: (ctx: any) => T,
+  setter?: (value: T) => void
+) {
   let value;
   let dirty;
 
@@ -220,5 +225,3 @@ function computed<T>(getter: (ctx: any) => T, setter?: (value: T) => void) {
 
   return computed;
 }
-
-reactive(new String(""));
