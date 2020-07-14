@@ -1,7 +1,7 @@
 import { reactive, effect, computed } from "../src/index";
 
 describe("reactive proxy", () => {
-  test("get handler adn set handler", () => {
+  test("reactive", () => {
     const user = reactive({
       name: "user",
       age: 18,
@@ -16,7 +16,7 @@ describe("reactive proxy", () => {
     expect(user.school.name).toBe("user school");
   });
 
-  test("effect", () => {
+  test("reactive-effect", () => {
     const user = reactive({
       name: "user",
       age: 18,
@@ -51,9 +51,32 @@ describe("reactive proxy", () => {
       return `${user.name}-${user.school.name}`;
     });
 
-    desc.value;
-
     expect(desc.value).toBe("user-school");
+  });
+
+  test("computed-effect", () => {
+    const user = reactive({
+      name: "user",
+      age: 18,
+      school: {
+        name: "school",
+        age: 100,
+      },
+    });
+
+    const desc = computed(() => {
+      return `${user.name}-${user.school.name}`;
+    });
+
+    let descString = "";
+
+    effect(() => {
+      descString = desc.value;
+    });
+
+    user.school.name = "user-school";
+
+    expect(desc.value).toBe("user-user-school");
   });
 });
 
