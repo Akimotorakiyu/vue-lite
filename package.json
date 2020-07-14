@@ -1,0 +1,17 @@
+{
+  "name": "vue3-student",
+  "version": "1.0.0",
+  "main": "index.js",
+  "private": true,
+  "repository": "https://github.com/Akimotorakiyu/vue3Student.git",
+  "author": "瓦姆乌·湫曗 <autumnsilverleaves@gmail.com>",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "ts-node": "^8.10.2",
+    "ts-node-dev": "^1.0.0-pre.51",
+    "typescript": "^3.9.6"
+  }
+}
