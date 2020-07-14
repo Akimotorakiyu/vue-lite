@@ -194,8 +194,8 @@ export function computed<T>(
   getter: (ctx: any) => T,
   setter?: (value: T) => void
 ) {
-  let value;
-  let dirty;
+  let value: T;
+  let dirty = true;
 
   const runner = effect(getter, {
     lazy: true,
@@ -213,7 +213,7 @@ export function computed<T>(
     effect: runner,
     get value() {
       if (dirty) {
-        runner();
+        value = runner();
         dirty = false;
       }
       track(computed, "value");

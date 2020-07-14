@@ -6,7 +6,7 @@ describe("reactive proxy", () => {
       name: "user",
       age: 18,
       school: {
-        name: "shcool",
+        name: "school",
         age: 100,
       },
     });
@@ -14,7 +14,6 @@ describe("reactive proxy", () => {
     user.school.name = "user school";
 
     expect(user.school.name).toBe("user school");
-    console.log("-----------------------")
   });
 
   test("effect", () => {
@@ -22,7 +21,7 @@ describe("reactive proxy", () => {
       name: "user",
       age: 18,
       school: {
-        name: "shcool",
+        name: "school",
         age: 100,
       },
     });
@@ -31,12 +30,30 @@ describe("reactive proxy", () => {
 
     effect(() => {
       schoolName = user.school.name;
-      console.log( user.school.name)
     });
 
     user.school.name = "user-school";
 
     expect(schoolName).toBe("user-school");
+  });
+
+  test("computed", () => {
+    const user = reactive({
+      name: "user",
+      age: 18,
+      school: {
+        name: "school",
+        age: 100,
+      },
+    });
+
+    const desc = computed(() => {
+      return `${user.name}-${user.school.name}`;
+    });
+
+    desc.value;
+
+    expect(desc.value).toBe("user-school");
   });
 });
 
