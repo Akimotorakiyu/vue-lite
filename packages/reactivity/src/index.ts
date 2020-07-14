@@ -52,7 +52,34 @@ function trigger<T extends object, N, O>(
   });
 }
 
-function track<T extends object>(target: T, key: ProxyHandlerKey) {}
+function track<T extends object>(target: T, key: ProxyHandlerKey) {
+  if (!activeEffect) {
+    return;
+  }
+
+  let depsMap = targetMap.get(target);
+  if (!depsMap) {
+    targetMap.set(target, (depsMap = new Map()));
+  }
+
+  let dep = depsMap.get(key);
+  if (!dep) {
+    depsMap.set(key, (dep = new Set()));
+  }
+
+  if (!dep.has(activeEffect)) {
+    dep.add(activeEffect);
+    activeEffect.relayedInDependencies.push(dep);
+
+    if (activeEffect.options.onTrack) {
+      activeEffect.options.onTrack({
+        effect: activeEffect,
+        target,
+        key,
+      });
+    }
+  }
+}
 
 function reactive<T extends object>(target: T) {
   if (!isObject(target)) {
