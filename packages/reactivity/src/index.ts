@@ -1,5 +1,16 @@
 import { isObject } from "./share";
-import { KeyToDepMap, ProxyHandlerKey, ReactiveEffectOptions } from "./type";
+import {
+  KeyToDepMap,
+  ProxyHandlerKey,
+  ReactiveEffectOptions,
+  ReactiveEffect,
+} from "./type";
+
+const targetMap = new WeakMap<object, KeyToDepMap>();
+
+let activeEffect: ReactiveEffect | undefined;
+// 临时存储依赖的函数栈
+const effectStack: ReactiveEffect[] = [];
 
 //
 function trigger<T extends object, N, O>(
@@ -7,7 +18,40 @@ function trigger<T extends object, N, O>(
   key: ProxyHandlerKey,
   newValue: N,
   oldValue: O
-) {}
+) {
+  const depMaps = targetMap.get(target);
+
+  if (!depMaps?.size) {
+    return;
+  }
+
+  const effectSets = depMaps.get(key);
+
+  if (effectSets) {
+    return;
+  }
+
+  const effects = new Set<ReactiveEffect>();
+
+  effectSets.forEach((effect) => {
+    if (effect !== activeEffect) {
+      effects.add(effect);
+    } else {
+      // the effect mutated its own dependency during its execution.
+      // this can be caused by operations like foo.value++
+      // do not trigger or we end in an infinite loop
+    }
+  });
+
+  effects.forEach((effect: ReactiveEffect) => {
+    if (effect.options.scheduler) {
+      effect.options.scheduler(effect);
+    } else {
+      effect();
+    }
+  });
+}
+
 function track<T extends object>(target: T, key: ProxyHandlerKey) {}
 
 function reactive<T extends object>(target: T) {
@@ -41,8 +85,6 @@ function reactive<T extends object>(target: T) {
     },
   });
 }
-
-const targetMap = new WeakMap<object, KeyToDepMap>();
 
 function effect(fn: () => void, options: ReactiveEffectOptions = {}) {
   return function reactiveEffect() {};
