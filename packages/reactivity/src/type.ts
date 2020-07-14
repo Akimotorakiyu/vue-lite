@@ -29,3 +29,8 @@ export interface ReactiveEffectOptions {
   onTrigger?: (event: DebuggerEvent) => void;
   onStop?: () => void;
 }
+
+export interface ComputedRef<T> {
+  effect: ReactiveEffect<T>;
+  value: T;
+}

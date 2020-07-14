@@ -4,6 +4,7 @@ import {
   ProxyHandlerKey,
   ReactiveEffectOptions,
   ReactiveEffect,
+  ComputedRef,
 } from "./type";
 
 const targetMap = new WeakMap<object, KeyToDepMap>();
@@ -182,13 +183,24 @@ function effect<T>(
   return effect;
 }
 
-function computed<T>(getter: () => T) {
+function computed<T>(getter: (ctx: any) => T, setter?: (value: T) => void) {
   let value;
   let dirty;
 
-  const runner = effect(getter);
+  const runner = effect(getter, {
+    lazy: true,
+    scheduler() {
+      if (!dirty) {
+        dirty = true;
+        // 只是用来触发依赖computed的相关effect执行
+        // 当获取value时，会在getter中直接执行effect
+        trigger(computed, "value", undefined, undefined);
+      }
+    },
+  });
 
-  const computed = {
+  const computed: ComputedRef<T> = {
+    effect: runner,
     get value() {
       if (dirty) {
         runner();
@@ -198,9 +210,11 @@ function computed<T>(getter: () => T) {
       return value;
     },
     set value(newValue: T) {
-      const oldValue = value;
-      value = newValue;
-      trigger(computed, "value", newValue, oldValue);
+      // computed 本身是计算的结果，它的值是不可改的
+      // 这里目的提供途径去修改computed的源，来触发computed的修改
+      if (setter) {
+        setter(newValue);
+      }
     },
   };
 
