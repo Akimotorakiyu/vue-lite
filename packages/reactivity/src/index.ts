@@ -86,8 +86,75 @@ function reactive<T extends object>(target: T) {
   });
 }
 
-function effect(fn: () => void, options: ReactiveEffectOptions = {}) {
-  return function reactiveEffect() {};
+/**
+ * 清理effect的依赖关系
+ *
+ * effect的第一次执行，是在effect创建完成之后，cleanup的第一次执行也是在创建完成之后，此时deps至少是一个空数组
+ *
+ * @param {ReactiveEffect} effect
+ */
+function cleanup(effect: ReactiveEffect) {
+  const { relayedInDependencies } = effect;
+
+  relayedInDependencies.forEach((dependencies) => {
+    dependencies.delete(effect);
+  });
+
+  effect.relayedInDependencies = [];
+}
+
+function stop(effect: ReactiveEffect) {
+  if (effect.active) {
+    cleanup(effect);
+    if (effect.options.onStop) {
+      effect.options.onStop();
+    }
+    effect.active = false;
+  }
+}
+
+function isReactiveEffect(value: any): value is ReactiveEffect {
+  return value?._isEffect ? true : false;
+}
+
+function createReactiveEffect<T>(
+  fn: (...args) => T,
+  options: ReactiveEffectOptions = {}
+) {
+  const effect = function reactiveEffect(...args) {
+    if (!effect.active) {
+      return options.scheduler ? undefined : fn(...args);
+    }
+
+    if (!effectStack.includes(effect)) {
+      cleanup(effect);
+      try {
+        effectStack.push(effect);
+        activeEffect = effect;
+
+        return fn(...args);
+      } finally {
+        effectStack.pop();
+        activeEffect = effectStack[effectStack.length - 1];
+      }
+    }
+  } as ReactiveEffect<T>;
+
+  return effect;
+}
+
+function effect<T>(
+  fn: ReactiveEffect<T> | ((...args) => T),
+  options: ReactiveEffectOptions = {}
+) {
+  const effect = isReactiveEffect(fn)
+    ? createReactiveEffect(fn.rawFunction, options)
+    : createReactiveEffect(fn, options);
+
+  if (!options.lazy) {
+    effect();
+  }
+  return effect;
 }
 
 function computed<T>(getter: () => T) {
