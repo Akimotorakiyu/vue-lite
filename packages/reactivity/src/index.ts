@@ -1,5 +1,5 @@
 import { isObject } from "./share";
-import { KeyToDepMap, ProxyHandlerKey } from "./type";
+import { KeyToDepMap, ProxyHandlerKey, ReactiveEffectOptions } from "./type";
 
 //
 function trigger<T extends object, N, O>(
@@ -44,7 +44,7 @@ function reactive<T extends object>(target: T) {
 
 const targetMap = new WeakMap<object, KeyToDepMap>();
 
-function effect(fn: () => void) {
+function effect(fn: () => void, options: ReactiveEffectOptions = {}) {
   return function reactiveEffect() {};
 }
 
