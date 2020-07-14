@@ -20,14 +20,12 @@ function trigger<T extends object, N, O>(
   oldValue: O
 ) {
   const depMaps = targetMap.get(target);
-
-  if (!depMaps?.size) {
+  if (!depMaps) {
     return;
   }
 
   const effectSets = depMaps.get(key);
-
-  if (effectSets) {
+  if (!effectSets) {
     return;
   }
 
