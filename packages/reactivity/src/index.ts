@@ -90,7 +90,7 @@ export function reactive<T extends object>(target: T) {
     get(target, key, receiver) {
       const value = Reflect.get(target, key, receiver);
       track(target, key);
-      return isObject ? reactive(value) : value;
+      return isObject(value) ? reactive(value) : value;
     },
     set(target, key, newValue, receiver) {
       const oldValue = Reflect.get(target, key, receiver);
