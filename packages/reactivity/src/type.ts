@@ -1,3 +1,5 @@
+export type ArrayIndex = number;
+
 export type ProxyHandlerKey = Parameters<ProxyHandler<object>["get"]>[1];
 
 export type Dependencies = Set<ReactiveEffect>;
