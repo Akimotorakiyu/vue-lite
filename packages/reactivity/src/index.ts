@@ -1,4 +1,4 @@
-import { isObject } from "./share";
+import { isObject, isArrayIndex } from "./share";
 import {
   KeyToDepMap,
   ProxyHandlerKey,
@@ -14,18 +14,49 @@ let activeEffect: ReactiveEffect | undefined;
 const effectStack: ReactiveEffect[] = [];
 let id = 0;
 
-//
-function trigger<T extends object, N, O>(
+function triggerForArrrayLength<T extends object, O>(
+  target: T,
+  key: ProxyHandlerKey,
+  newValue: number,
+  oldValue: O
+) {
+  const depMaps = targetMap.get(target);
+
+  const effects = new Set<ReactiveEffect>();
+
+  depMaps.forEach((effectSets, keyForDep) => {
+    if (
+      keyForDep === "length" ||
+      (isArrayIndex(keyForDep) && keyForDep >= newValue)
+    ) {
+      effectSets.forEach((effect) => {
+        if (effect !== activeEffect) {
+          effects.add(effect);
+        } else {
+          // the effect mutated its own dependency during its execution.
+          // this can be caused by operations like foo.value++
+          // do not trigger or we end in an infinite loop
+        }
+      });
+    }
+  });
+
+  effects.forEach((effect: ReactiveEffect) => {
+    if (effect.options.scheduler) {
+      effect.options.scheduler(effect);
+    } else {
+      effect();
+    }
+  });
+}
+
+function triggerForObject<T extends object, N, O>(
   target: T,
   key: ProxyHandlerKey,
   newValue: N,
   oldValue: O
 ) {
   const depMaps = targetMap.get(target);
-
-  if (!depMaps) {
-    return;
-  }
 
   const effectSets = depMaps.get(key);
   if (!effectSets) {
@@ -51,6 +82,26 @@ function trigger<T extends object, N, O>(
       effect();
     }
   });
+}
+
+//
+function trigger<T extends object, N, O>(
+  target: T,
+  key: ProxyHandlerKey,
+  newValue: N,
+  oldValue: O
+) {
+  const depMaps = targetMap.get(target);
+
+  if (!depMaps) {
+    return;
+  }
+
+  if (key === "length" && Array.isArray(target)) {
+    triggerForArrrayLength(target, key, parseInt(String(newValue)), oldValue);
+  } else {
+    triggerForObject(target, key, newValue, oldValue);
+  }
 }
 
 function track<T extends object>(target: T, key: ProxyHandlerKey) {
