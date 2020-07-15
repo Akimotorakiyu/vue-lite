@@ -1,10 +1,11 @@
-import { isObject, isArrayIndex } from "./share";
+import { isObject, isArrayIndex, isReactiveObject } from "./share";
 import {
   KeyToDepMap,
   ProxyHandlerKey,
   ReactiveEffectOptions,
   ReactiveEffect,
   ComputedRef,
+  ReactiveObject,
 } from "./type";
 
 const targetMap = new WeakMap<object, KeyToDepMap>();
@@ -151,13 +152,17 @@ function track<T extends object>(target: T, key: ProxyHandlerKey) {
   }
 }
 
-export function reactive<T extends object>(target: T) {
+export function reactive<T extends object>(target: T | ReactiveObject<T>) {
   if (!isObject(target)) {
     console.warn(`value cannot be made reactive: ${String(target)}`);
     return target;
   }
 
-  const obsver: T = new Proxy(target, {
+  if (isReactiveObject(target)) {
+    return target[Symbol.for("reactiveObjectKey")];
+  }
+
+  const obsver = new Proxy(target, {
     get(target, key, receiver) {
       const value = Reflect.get(target, key, receiver);
       track(target, key);
@@ -187,6 +192,12 @@ export function reactive<T extends object>(target: T) {
       });
       return keys;
     },
+  }) as ReactiveObject<T>;
+
+  Object.defineProperty(obsver, Symbol.for("reactiveObjectKey"), {
+    writable: false,
+    enumerable: false,
+    value: obsver,
   });
 
   return obsver;

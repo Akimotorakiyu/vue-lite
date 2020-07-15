@@ -15,6 +15,12 @@ export interface ReactiveEffect<T = any> {
   options: ReactiveEffectOptions;
 }
 
+const reactiveObjectKey = Symbol.for("reactiveObjectKey");
+
+export type ReactiveObject<T extends object> = T & {
+  [reactiveObjectKey]: ReactiveObject<T>;
+};
+
 export type DebuggerEvent = {
   effect: ReactiveEffect;
   target: object;
