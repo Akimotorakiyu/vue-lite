@@ -42,6 +42,15 @@ function triggerForArrrayLength<T extends object, O>(
   });
 
   effects.forEach((effect: ReactiveEffect) => {
+    if (effect.options.onTrigger) {
+      effect.options.onTrigger({
+        effect,
+        target,
+        key,
+        newValue,
+        oldValue,
+      });
+    }
     if (effect.options.scheduler) {
       effect.options.scheduler(effect);
     } else {
@@ -76,6 +85,15 @@ function triggerForObject<T extends object, N, O>(
   });
 
   effects.forEach((effect: ReactiveEffect) => {
+    if (effect.options.onTrigger) {
+      effect.options.onTrigger({
+        effect,
+        target,
+        key,
+        newValue,
+        oldValue,
+      });
+    }
     if (effect.options.scheduler) {
       effect.options.scheduler(effect);
     } else {
