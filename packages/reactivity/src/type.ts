@@ -18,7 +18,7 @@ export interface ReactiveEffect<T = any> {
 export type DebuggerEvent = {
   effect: ReactiveEffect;
   target: object;
-  key: any;
+  key: ProxyHandlerKey;
   newValue?: any;
   oldValue?: any;
 };
