@@ -180,6 +180,13 @@ export function reactive<T extends object>(target: T) {
       track(target, key);
       return has;
     },
+    ownKeys(target) {
+      const keys = Reflect.ownKeys(target);
+      keys.forEach((key) => {
+        track(target, key);
+      });
+      return keys;
+    },
   });
 
   return obsver;
