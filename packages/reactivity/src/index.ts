@@ -194,7 +194,7 @@ export function reactive<T extends object>(target: T | ReactiveObject<T>) {
     },
   }) as ReactiveObject<T>;
 
-  Object.defineProperty(obsver, Symbol.for("reactiveObjectKey"), {
+  Object.defineProperty(target, Symbol.for("reactiveObjectKey"), {
     writable: false,
     enumerable: false,
     value: obsver,
