@@ -10,7 +10,8 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "dev": "cd packages/runtime-dom && vite"
   },
   "devDependencies": {
     "@types/jest": "^26.0.4",

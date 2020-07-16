@@ -1,0 +1,12 @@
+{
+  "name": "@vue-lite/runtime-dom",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^1.0.0-beta.11"
+  },
+  "dependencies": {
+    "@vue-lite/runtime-core": "^1.0.0"
+  }
+}
