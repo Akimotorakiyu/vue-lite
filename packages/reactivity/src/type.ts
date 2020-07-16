@@ -25,8 +25,8 @@ export type DebuggerEvent<T, A extends []> = {
   effect: ReactiveEffect<T, A>;
   target: object;
   key: ProxyHandlerKey;
-  newValue?: any;
-  oldValue?: any;
+  newValue?: unknown;
+  oldValue?: unknown;
 };
 
 export interface ReactiveEffectOptions<T, A extends []> {
