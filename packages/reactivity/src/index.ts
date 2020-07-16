@@ -10,9 +10,9 @@ import {
 
 const targetMap = new WeakMap<object, KeyToDepMap>();
 
-let activeEffect: ReactiveEffect | undefined;
+let activeEffect: ReactiveEffect<unknown, []> | undefined;
 // 临时存储依赖的函数栈
-const effectStack: ReactiveEffect[] = [];
+const effectStack: ReactiveEffect<unknown, []>[] = [];
 let id = 0;
 
 function triggerForArrrayLength<T extends object, O>(
@@ -23,7 +23,7 @@ function triggerForArrrayLength<T extends object, O>(
 ) {
   const depMaps = targetMap.get(target);
 
-  const effects = new Set<ReactiveEffect>();
+  const effects = new Set<ReactiveEffect<unknown, []>>();
 
   depMaps.forEach((effectSets, keyForDep) => {
     if (
@@ -42,7 +42,7 @@ function triggerForArrrayLength<T extends object, O>(
     }
   });
 
-  effects.forEach((effect: ReactiveEffect) => {
+  effects.forEach((effect: ReactiveEffect<unknown, []>) => {
     if (effect.options.onTrigger) {
       effect.options.onTrigger({
         effect,
@@ -73,7 +73,7 @@ function triggerForObject<T extends object, N, O>(
     return;
   }
 
-  const effects = new Set<ReactiveEffect>();
+  const effects = new Set<ReactiveEffect<unknown, []>>();
 
   effectSets.forEach((effect) => {
     if (effect !== activeEffect) {
@@ -85,7 +85,7 @@ function triggerForObject<T extends object, N, O>(
     }
   });
 
-  effects.forEach((effect: ReactiveEffect) => {
+  effects.forEach((effect: ReactiveEffect<unknown, []>) => {
     if (effect.options.onTrigger) {
       effect.options.onTrigger({
         effect,
@@ -210,7 +210,7 @@ export function reactive<T extends object>(target: T | ReactiveObject<T>) {
  *
  * @param {ReactiveEffect} effect
  */
-function cleanup(effect: ReactiveEffect) {
+function cleanup(effect: ReactiveEffect<unknown, []>) {
   const { relayedInDependencies } = effect;
 
   relayedInDependencies.forEach((dependencies) => {
@@ -220,7 +220,7 @@ function cleanup(effect: ReactiveEffect) {
   effect.relayedInDependencies = [];
 }
 
-export function stop(effect: ReactiveEffect) {
+export function stop(effect: ReactiveEffect<unknown, []>) {
   if (effect.active) {
     cleanup(effect);
     if (effect.options.onStop) {
@@ -230,15 +230,15 @@ export function stop(effect: ReactiveEffect) {
   }
 }
 
-function isReactiveEffect(value: any): value is ReactiveEffect {
+function isReactiveEffect(value: any): value is ReactiveEffect<unknown, []> {
   return value?._isEffect ? true : false;
 }
 
-function createReactiveEffect<T>(
-  fn: (...args) => T,
-  options: ReactiveEffectOptions = {}
+function createReactiveEffect<T, A extends []>(
+  fn: (...args: A) => T,
+  options: ReactiveEffectOptions<T, A> = {}
 ) {
-  const effect = function reactiveEffect(...args) {
+  const effect = function reactiveEffect(...args: A) {
     if (!effect.active) {
       return options.scheduler ? undefined : fn(...args);
     }
@@ -254,7 +254,7 @@ function createReactiveEffect<T>(
         activeEffect = effectStack[effectStack.length - 1];
       }
     }
-  } as ReactiveEffect<T>;
+  } as ReactiveEffect<T, A>;
 
   effect.id = id++;
   effect.active = true;
@@ -264,9 +264,9 @@ function createReactiveEffect<T>(
   return effect;
 }
 
-export function effect<T>(
-  fn: ReactiveEffect<T> | ((...args) => T),
-  options: ReactiveEffectOptions = {}
+export function effect<T, A extends []>(
+  fn: ReactiveEffect<T, A> | ((...args: A) => T),
+  options: ReactiveEffectOptions<T, A> = {}
 ) {
   const effect = isReactiveEffect(fn)
     ? createReactiveEffect(fn.rawFunction, options)
@@ -277,8 +277,8 @@ export function effect<T>(
   return effect;
 }
 
-export function computed<T>(
-  getter: (ctx: any) => T,
+export function computed<T, A extends []>(
+  getter: (...args: A) => T,
   setter?: (value: T) => void
 ) {
   let value: T;
@@ -296,7 +296,7 @@ export function computed<T>(
     },
   });
 
-  const computed: ComputedRef<T> = {
+  const computed: ComputedRef<T, A> = {
     effect: runner,
     get value() {
       if (dirty) {
