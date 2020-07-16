@@ -1,4 +1,9 @@
-import { isObject, isArrayIndex, isReactiveObject } from "./share";
+import {
+  isObject,
+  isArrayIndex,
+  isReactiveObject,
+  isReactiveEffect,
+} from "./share";
 import {
   KeyToDepMap,
   ProxyHandlerKey,
@@ -228,12 +233,6 @@ export function stop(effect: ReactiveEffect<unknown, []>) {
     }
     effect.active = false;
   }
-}
-
-function isReactiveEffect<T, A extends []>(
-  value: ReactiveEffect<T, A> | ((...args: A) => T)
-): value is ReactiveEffect<T, A> {
-  return (value as ReactiveEffect<T, A>)?._isEffect ? true : false;
 }
 
 function createReactiveEffect<T, A extends []>(
