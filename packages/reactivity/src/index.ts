@@ -113,7 +113,7 @@ function triggerForObject<T extends object, N, O>(
 }
 
 //
-function trigger<T extends object, N, O>(
+export function trigger<T extends object, N, O>(
   target: T,
   key: ProxyHandlerKey,
   newValue: N,
@@ -132,7 +132,7 @@ function trigger<T extends object, N, O>(
   }
 }
 
-function track<T extends object>(target: T, key: ProxyHandlerKey) {
+export function track<T extends object>(target: T, key: ProxyHandlerKey) {
   if (!activeEffect) {
     return;
   }
