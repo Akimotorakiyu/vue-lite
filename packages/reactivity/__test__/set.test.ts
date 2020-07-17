@@ -1,4 +1,4 @@
-import { reactive, effect, computed } from "../src/index";
+import { reactive, effect } from "../src/index";
 
 describe("reactive proxy Set", () => {
   test("reactive", () => {
