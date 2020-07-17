@@ -42,3 +42,7 @@ export interface ComputedRef<T, A extends []> {
   effect: ReactiveEffect<T, A>;
   value: T;
 }
+
+export interface Constructor<T> {
+  new (): T;
+}

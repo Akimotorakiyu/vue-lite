@@ -14,6 +14,8 @@ import {
   reactiveObjectKey,
 } from "./type";
 
+import { setTargetPrototypeProxy } from "./prototypeProxy";
+
 const targetMap = new WeakMap<object, KeyToDepMap>();
 
 let activeEffect: ReactiveEffect<unknown, []> | undefined;
@@ -167,6 +169,8 @@ export function reactive<T extends object>(target: T | ReactiveObject<T>) {
   if (isReactiveObject(target)) {
     return target[reactiveObjectKey];
   }
+
+  setTargetPrototypeProxy(target);
 
   const obsver = new Proxy(target, {
     get(target, key, receiver) {
