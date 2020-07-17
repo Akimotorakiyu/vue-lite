@@ -11,6 +11,7 @@ import {
   ReactiveEffect,
   ComputedRef,
   ReactiveObject,
+  reactiveObjectKey,
 } from "./type";
 
 const targetMap = new WeakMap<object, KeyToDepMap>();
@@ -164,7 +165,7 @@ export function reactive<T extends object>(target: T | ReactiveObject<T>) {
   }
 
   if (isReactiveObject(target)) {
-    return target[Symbol.for("reactiveObjectKey")];
+    return target[reactiveObjectKey];
   }
 
   const obsver = new Proxy(target, {

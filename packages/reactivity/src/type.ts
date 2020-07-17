@@ -15,7 +15,7 @@ export interface ReactiveEffect<T, A extends []> {
   options: ReactiveEffectOptions<T, A>;
 }
 
-const reactiveObjectKey = Symbol.for("reactiveObjectKey");
+export const reactiveObjectKey = Symbol.for("reactiveObjectKey");
 
 export type ReactiveObject<T extends object> = T & {
   [reactiveObjectKey]: ReactiveObject<T>;

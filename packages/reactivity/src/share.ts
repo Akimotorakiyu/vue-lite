@@ -3,6 +3,7 @@ import {
   ArrayIndex,
   ReactiveObject,
   ReactiveEffect,
+  reactiveObjectKey,
 } from "./type";
 
 export function isObject(value: unknown): value is object {
@@ -18,7 +19,7 @@ export function isArrayIndex(key: ProxyHandlerKey): key is ArrayIndex {
 export function isReactiveObject<T extends object>(
   target: T | ReactiveObject<T>
 ): target is ReactiveObject<T> {
-  return target[Symbol.for("reactiveObjectKey")] ? true : false;
+  return target[reactiveObjectKey] ? true : false;
 }
 
 export function isReactiveEffect<T, A extends []>(
