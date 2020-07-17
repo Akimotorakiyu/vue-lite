@@ -10,7 +10,6 @@ export const classPrototypeProxyMap = new Map<object, Constructor<object>>();
 export function setClassPrototypeProxyMap<T>(
   functionConstructor: Constructor<T>
 ) {
-  console.log(classPrototypeProxyMap);
   classPrototypeProxyMap.set(
     Reflect.getPrototypeOf(functionConstructor.prototype),
     (functionConstructor as Constructor<unknown>) as Constructor<object>
