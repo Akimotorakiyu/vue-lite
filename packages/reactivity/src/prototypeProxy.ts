@@ -269,7 +269,7 @@ class ProxyMap<K, V> extends Map<K, V> {
 
   get size() {
     track(this, "length");
-    return Reflect.get(Set.prototype, "size", proxyToRaw.get(this));
+    return Reflect.get(Map.prototype, "size", proxyToRaw.get(this));
   }
 }
 
