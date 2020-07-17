@@ -94,5 +94,3 @@ describe("reactive proxy Map", () => {
     expect(has).toBe(false);
   });
 });
-
-export {};

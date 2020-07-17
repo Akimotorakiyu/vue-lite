@@ -79,5 +79,3 @@ describe("reactive proxy", () => {
     expect(desc.value).toBe("user-user-school");
   });
 });
-
-export {};

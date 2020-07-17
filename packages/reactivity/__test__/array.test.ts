@@ -80,5 +80,3 @@ describe("reactive proxy array", () => {
     expect(value).toBe(values[values.length - 1]);
   });
 });
-
-export {};

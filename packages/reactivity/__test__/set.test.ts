@@ -90,5 +90,3 @@ describe("reactive proxy Set", () => {
     expect(has).toBe(false);
   });
 });
-
-export {};

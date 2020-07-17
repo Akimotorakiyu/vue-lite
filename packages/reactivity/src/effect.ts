@@ -181,29 +181,34 @@ function createReactiveEffect<T, A extends []>(
   fn: (...args: A) => T,
   options: ReactiveEffectOptions<T, A> = {}
 ) {
-  const effect = function reactiveEffect(...args: A) {
-    if (!effect.active) {
-      return options.scheduler ? undefined : fn(...args);
-    }
-    if (!effectStack.includes(effect)) {
-      cleanup(effect);
-      try {
-        effectStack.push(effect);
-        activeEffect = effect;
-
-        return fn(...args);
-      } finally {
-        effectStack.pop();
-        activeEffect = effectStack[effectStack.length - 1];
+  const effect = Object.assign(
+    function reactiveEffect(...args: A) {
+      if (!effect.active) {
+        return options.scheduler ? undefined : fn(...args);
       }
-    }
-  } as ReactiveEffect<T, A>;
+      if (!effectStack.includes(effect)) {
+        cleanup(effect);
+        try {
+          effectStack.push(effect);
+          activeEffect = effect;
 
-  effect.id = id++;
-  effect.active = true;
-  effect.relayedInDependencies = [];
-  effect.rawFunction = fn;
-  effect.options = options;
+          return fn(...args);
+        } finally {
+          effectStack.pop();
+          activeEffect = effectStack[effectStack.length - 1];
+        }
+      }
+    },
+    {
+      id: id++,
+      _isEffect: true,
+      active: true,
+      relayedInDependencies: [],
+      rawFunction: fn,
+      options: options,
+    }
+  ) as ReactiveEffect<T, A>;
+
   return effect;
 }
 
