@@ -2,6 +2,9 @@ import { Constructor } from "./type";
 import { proxyToRaw, isObject } from "./share";
 import { track, trigger, reactive } from "./index";
 
+// todo: add allowList, good first issue
+// export const allowList = ["Map", "Set"];
+
 export const classPrototypeProxyMap = new Map<object, Constructor<object>>();
 
 export function setClassPrototypeProxyMap<T>(
