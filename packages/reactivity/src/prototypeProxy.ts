@@ -1,6 +1,6 @@
 import { Constructor } from "./type";
-import { proxyToRaw } from "./share";
-import { track, trigger } from "./index";
+import { proxyToRaw, isObject } from "./share";
+import { track, trigger, reactive } from "./index";
 
 export const classPrototypeProxyMap = new Map<object, Constructor<object>>();
 
@@ -36,9 +36,33 @@ class ProxySet<T> extends Set<T> {
     return this;
   }
 
-  values() {
+  values(): IterableIterator<T> {
     track(this, "length");
-    return super.values.call(proxyToRaw.get(this)) as IterableIterator<T>;
+    const iterableIterator = super.values.call(
+      proxyToRaw.get(this)
+    ) as IterableIterator<T>;
+
+    const newIterableIterator = {
+      [Symbol.iterator]() {
+        return newIterableIterator;
+      },
+      next() {
+        const iterator = iterableIterator.next();
+        return iterator.done
+          ? iterator
+          : isObject(iterator.value)
+          ? {
+              value: reactive(iterator.value),
+              done: false,
+            }
+          : {
+              value: iterator.value,
+              done: false,
+            };
+      },
+    };
+
+    return newIterableIterator;
   }
 
   clear() {
@@ -52,7 +76,6 @@ class ProxySet<T> extends Set<T> {
   }
 
   forEach(fn: Parameters<Set<T>["forEach"]>[0]) {
-    track(this, "length");
     for (const iterator of this.values()) {
       fn(iterator, iterator, this);
     }
@@ -61,12 +84,60 @@ class ProxySet<T> extends Set<T> {
 
   keys() {
     track(this, "length");
-    return super.keys.call(proxyToRaw.get(this)) as IterableIterator<T>;
+    const iterableIterator = super.keys.call(
+      proxyToRaw.get(this)
+    ) as IterableIterator<T>;
+
+    const newIterableIterator = {
+      [Symbol.iterator]() {
+        return newIterableIterator;
+      },
+      next() {
+        const iterator = iterableIterator.next();
+        return iterator.done
+          ? iterator
+          : isObject(iterator.value)
+          ? {
+              value: reactive(iterator.value),
+              done: false,
+            }
+          : {
+              value: iterator.value,
+              done: false,
+            };
+      },
+    };
+
+    return newIterableIterator;
   }
 
   entries() {
     track(this, "length");
-    return super.entries.call(proxyToRaw.get(this)) as IterableIterator<[T, T]>;
+    const iterableIterator = super.entries.call(
+      proxyToRaw.get(this)
+    ) as IterableIterator<T>;
+
+    const newIterableIterator = {
+      [Symbol.iterator]() {
+        return newIterableIterator;
+      },
+      next() {
+        const iterator = iterableIterator.next();
+        return iterator.done
+          ? iterator
+          : isObject(iterator.value)
+          ? {
+              value: reactive(iterator.value),
+              done: false,
+            }
+          : {
+              value: iterator.value,
+              done: false,
+            };
+      },
+    };
+
+    return newIterableIterator;
   }
 
   delete(value: T) {

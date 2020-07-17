@@ -5,7 +5,6 @@ describe("reactive proxy array", () => {
     const values = reactive(new Set<number>());
 
     values.add(0);
-    console.log(values.size);
 
     expect(Array.from(values.values())[0]).toBe(0);
 
