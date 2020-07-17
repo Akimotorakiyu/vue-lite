@@ -66,8 +66,8 @@ class ProxySet<T> extends Set<T> {
   }
 
   clear() {
+    super.clear.call(proxyToRaw.get(this));
     trigger(this, "length", undefined, undefined);
-    return super.clear.call(proxyToRaw.get(this));
   }
 
   has(value: T) {
@@ -188,8 +188,8 @@ class ProxyMap<K, V> extends Map<K, V> {
   }
 
   clear() {
+    super.clear.call(proxyToRaw.get(this));
     trigger(this, "length", undefined, undefined);
-    return super.clear.call(proxyToRaw.get(this));
   }
 
   has(key: K) {
@@ -274,3 +274,4 @@ class ProxyMap<K, V> extends Map<K, V> {
 }
 
 setClassPrototypeProxyMap(ProxySet);
+setClassPrototypeProxyMap(ProxyMap);
