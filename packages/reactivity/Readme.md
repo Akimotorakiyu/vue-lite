@@ -2,10 +2,10 @@
 
 ## Support
 
-`plain object` and `plain array`
+- `plain object` and `plain array`
+- `Set` and `Map`
+- `custom reactivity`
 
-## pending
+#### note
 
-`custom reactivity`
-
-when attemp to use `Set`, `Map`, `Date` etc..., you need ...
+- `Set` and `Map` are kins of `custom reactivity`
