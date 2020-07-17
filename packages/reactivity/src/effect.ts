@@ -6,6 +6,7 @@ import {
 } from "./type";
 import { isReactiveEffect, isArrayIndex } from "./share";
 
+// 当前正在执行的effect函数
 let activeEffect: ReactiveEffect<unknown, []> | undefined;
 // 临时存储依赖的函数栈
 const effectStack: ReactiveEffect<unknown, []>[] = [];
@@ -13,6 +14,16 @@ let id = 0;
 
 const targetMap = new WeakMap<object, KeyToDepMap>();
 
+/**
+ * 数组.length属性的专用trigger
+ *
+ * @template T
+ * @template O
+ * @param {T} target
+ * @param {ProxyHandlerKey} key
+ * @param {number} newValue
+ * @param {O} oldValue
+ */
 function triggerForArrrayLength<T extends object, O>(
   target: T,
   key: ProxyHandlerKey,
@@ -58,6 +69,18 @@ function triggerForArrrayLength<T extends object, O>(
   });
 }
 
+/**
+ * 普通trigger
+ *
+ * @template T
+ * @template N
+ * @template O
+ * @param {T} target
+ * @param {ProxyHandlerKey} key
+ * @param {N} newValue
+ * @param {O} oldValue
+ * @returns
+ */
 function triggerForObject<T extends object, N, O>(
   target: T,
   key: ProxyHandlerKey,
@@ -101,7 +124,19 @@ function triggerForObject<T extends object, N, O>(
   });
 }
 
-//
+/**
+ * trigger
+ *
+ * @export
+ * @template T
+ * @template N
+ * @template O
+ * @param {T} target
+ * @param {ProxyHandlerKey} key
+ * @param {N} newValue
+ * @param {O} oldValue
+ * @returns
+ */
 export function trigger<T extends object, N, O>(
   target: T,
   key: ProxyHandlerKey,
@@ -121,6 +156,15 @@ export function trigger<T extends object, N, O>(
   }
 }
 
+/**
+ * 依赖收集
+ *
+ * @export
+ * @template T
+ * @param {T} target
+ * @param {ProxyHandlerKey} key
+ * @returns
+ */
 export function track<T extends object>(target: T, key: ProxyHandlerKey) {
   if (!activeEffect) {
     return;
@@ -167,6 +211,12 @@ function cleanup(effect: ReactiveEffect<unknown, []>) {
   effect.relayedInDependencies = [];
 }
 
+/**
+ * 关闭激活状态，并清理依赖关系
+ *
+ * @export
+ * @param {ReactiveEffect<unknown, []>} effect
+ */
 export function stop(effect: ReactiveEffect<unknown, []>) {
   if (effect.active) {
     cleanup(effect);
@@ -177,6 +227,15 @@ export function stop(effect: ReactiveEffect<unknown, []>) {
   }
 }
 
+/**
+ * 创建响应式effect
+ *
+ * @template T
+ * @template A
+ * @param {(...args: A) => T} fn
+ * @param {ReactiveEffectOptions<T, A>} [options={}]
+ * @returns
+ */
 function createReactiveEffect<T, A extends []>(
   fn: (...args: A) => T,
   options: ReactiveEffectOptions<T, A> = {}
@@ -211,7 +270,16 @@ function createReactiveEffect<T, A extends []>(
 
   return effect;
 }
-
+/**
+ * 获取响应式effect
+ *
+ * @export
+ * @template T
+ * @template A
+ * @param {(ReactiveEffect<T, A> | ((...args: A) => T))} fn
+ * @param {ReactiveEffectOptions<T, A>} [options={}]
+ * @returns
+ */
 export function effect<T, A extends []>(
   fn: ReactiveEffect<T, A> | ((...args: A) => T),
   options: ReactiveEffectOptions<T, A> = {}

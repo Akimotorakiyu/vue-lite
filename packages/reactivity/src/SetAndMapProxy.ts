@@ -2,7 +2,13 @@ import { proxyToRaw, isObject } from "./share";
 import { reactive } from "./reactive";
 import { trigger, track } from "./effect";
 import { setClassPrototypeProxyMap } from ".";
-
+/**
+ * Set的原型链代理
+ *
+ * @class ProxySet
+ * @extends {Set<T>}
+ * @template T
+ */
 class ProxySet<T> extends Set<T> {
   add(value: T) {
     super.add.call(proxyToRaw.get(this), value);
@@ -124,7 +130,14 @@ class ProxySet<T> extends Set<T> {
     return Reflect.get(Set.prototype, "size", proxyToRaw.get(this));
   }
 }
-
+/**
+ * Map的原型链代理
+ *
+ * @class ProxyMap
+ * @extends {Map<K, V>}
+ * @template K
+ * @template V
+ */
 class ProxyMap<K, V> extends Map<K, V> {
   set(key: K, value: V) {
     super.set.call(proxyToRaw.get(this), key, value);

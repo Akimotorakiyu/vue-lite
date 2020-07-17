@@ -5,8 +5,16 @@ import { track, trigger } from "./effect";
 
 // todo: add allowList, good first issue
 // export const allowList = ["Map", "Set"];
+// 自定义原型链关系
 export const classPrototypeProxyMap = new Map<object, Constructor<object>>();
 
+/**
+ * 设置原型链关系
+ *
+ * @export
+ * @template T
+ * @param {Constructor<T>} functionConstructor
+ */
 export function setClassPrototypeProxyMap<T>(
   functionConstructor: Constructor<T>
 ) {
@@ -15,7 +23,13 @@ export function setClassPrototypeProxyMap<T>(
     (functionConstructor as Constructor<unknown>) as Constructor<object>
   );
 }
-
+/**
+ * 设置原型链代理
+ *
+ * @export
+ * @template T
+ * @param {T} target
+ */
 export function setTargetPrototypeProxy<T extends object>(target: T) {
   let proto = Reflect.getPrototypeOf(target);
   let newProto: object;
@@ -32,6 +46,14 @@ export function setTargetPrototypeProxy<T extends object>(target: T) {
   }
 }
 
+/**
+ * 创建响应式对象
+ *
+ * @export
+ * @template T
+ * @param {(T | ReactiveObject<T>)} target
+ * @returns
+ */
 export function reactive<T extends object>(target: T | ReactiveObject<T>) {
   if (!isObject(target)) {
     console.warn(`value cannot be made reactive: ${String(target)}`);
