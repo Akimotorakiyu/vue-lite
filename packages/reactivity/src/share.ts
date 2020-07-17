@@ -27,3 +27,5 @@ export function isReactiveEffect<T, A extends []>(
 ): value is ReactiveEffect<T, A> {
   return (value as ReactiveEffect<T, A>)?._isEffect ? true : false;
 }
+
+export const proxyToRaw = new WeakMap<object, object>();

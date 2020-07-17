@@ -3,6 +3,7 @@ import {
   isArrayIndex,
   isReactiveObject,
   isReactiveEffect,
+  proxyToRaw,
 } from "./share";
 import {
   KeyToDepMap,
@@ -209,6 +210,8 @@ export function reactive<T extends object>(target: T | ReactiveObject<T>) {
     enumerable: false,
     value: obsver,
   });
+
+  proxyToRaw.set(obsver, target);
 
   return obsver;
 }
