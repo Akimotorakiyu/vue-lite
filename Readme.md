@@ -6,7 +6,7 @@
 
 ## reactive: alpha
 
-`reactive`, `effect`, `computed`.
+`reactive`, `effect`, `computed`, `custom reactivity`.
 
 ## pending
 
