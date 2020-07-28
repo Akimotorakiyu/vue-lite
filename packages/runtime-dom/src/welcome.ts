@@ -1,23 +1,23 @@
-import { doc } from "prettier";
-
 export const welcome = "greeting: runtime-dom!";
 
 const root = document.querySelector("#app");
 
 /**
- * 两种Tag类型，一种是原生tag，一种是vue组件
+ * 两种Tag类型，一种是string，一种是组件
  */
-type VueComponentDesc = string | VueComponent;
-interface VueComponent {
-  render(): VNode[];
+type ComponentDesc = string | VueComponent;
+interface VueComponent<T = unknown> {
+  setup?(): T;
+  render?(): VNode[];
 }
 
+// HTML tag
 const tagSet = new Set(["span", "div"]);
 
-// component tag
+// component tag -> component
 const components = new Map<string, VueComponent>();
 
-function isComponent(tag: any): tag is VueComponent {
+function isComponent(tag: ComponentDesc): tag is VueComponent {
   return typeof tag !== null && typeof tag === "object" && !Array.isArray(tag);
 }
 
@@ -25,7 +25,7 @@ class VNode {
   $el: Node;
   renderedNodes: VNode[];
   constructor(
-    public tag: VueComponentDesc,
+    public tag: ComponentDesc,
     public props: Props,
     public children: VNode[]
   ) {
@@ -33,35 +33,63 @@ class VNode {
   }
 
   create() {
-    if (typeof this.tag === "string") {
-      if (tagSet.has(this.tag)) {
-        this.$el = document.createElement(this.tag);
-      } else if (components.has(this.tag)) {
-        const com = components.get(this.tag);
-        this.renderedNodes = com.render();
-        this.$el = document.createDocumentFragment();
-      } else if (!this.tag) {
-        this.$el = document.createComment("");
-      } else {
-        this.$el = document.createTextNode(this.tag);
-      }
-    } else if (isComponent(this.tag)) {
-      const com = this.tag;
-      this.renderedNodes = com.render();
-      this.$el = document.createDocumentFragment();
-    }
+    console.error("you must override the create function");
   }
 
   mount(parent: Node) {
-    if (this.renderedNodes) {
-      this.renderedNodes.forEach((ele) => {
-        ele.mount(this.$el);
-      });
-    } else {
-      this.children?.forEach((ele) => {
-        ele.mount(this.$el);
-      });
-    }
+    console.error("you must override the mount function");
+  }
+}
+
+class HTMLVNode extends VNode {
+  tag: string;
+}
+
+class TagVNode extends HTMLVNode {
+  tag: string;
+  create() {
+    this.$el = document.createElement(this.tag);
+  }
+  mount(parent: Node) {
+    this.children?.forEach((ele) => {
+      ele.mount(this.$el);
+    });
+    parent.appendChild(this.$el);
+  }
+}
+
+class CommentVNode extends HTMLVNode {
+  tag: string;
+  create() {
+    this.$el = document.createComment("Comment");
+  }
+  mount(parent: Node) {
+    parent.appendChild(this.$el);
+  }
+}
+class TextVNode extends HTMLVNode {
+  tag: string;
+  create() {
+    this.$el = document.createTextNode(this.tag);
+  }
+  mount(parent: Node) {
+    parent.appendChild(this.$el);
+  }
+}
+class VueVNode extends VNode {
+  tag: ComponentDesc;
+  create() {
+    let com =
+      typeof this.tag === "string" ? components.get(this.tag) : this.tag;
+
+    this.renderedNodes = com?.render() || [];
+    this.$el = document.createDocumentFragment();
+  }
+
+  mount(parent: Node) {
+    this.renderedNodes?.forEach((ele) => {
+      ele.mount(this.$el);
+    });
     parent.appendChild(this.$el);
   }
 }
@@ -71,23 +99,46 @@ interface Props {
 }
 
 function createElement(
-  tag: VueComponentDesc,
+  tag: ComponentDesc,
   props?: Props,
   children?: VNode[]
-) {
-  return new VNode(tag, props, children);
+): VNode {
+  if (typeof tag === "string") {
+    if (tagSet.has(tag)) {
+      return new TagVNode(tag, props, children);
+    } else if (components.has(tag)) {
+      return new VueVNode(tag, props, children);
+    } else if (tag) {
+      return new TextVNode(tag, props, children);
+    } else {
+      return new CommentVNode("", props, children);
+    }
+  } else if (isComponent(tag)) {
+    return new VueVNode(tag, props, children);
+  } else {
+    console.error(`无效的组件${tag}`);
+    return new TagVNode(tag, props, children);
+  }
 }
+
+const h = createElement;
 
 const App: VueComponent = {
   render: () => {
-    return [createElement("div", {}, [createElement("hello world")])];
+    return [h("div", {}, [h("hello world")])];
   },
 };
 
-function createApp(AppRoot: VueComponentDesc) {
-  const appRoot = createElement(AppRoot);
-  console.log(appRoot);
-  return appRoot;
+class Vue {
+  h = h;
+  constructor(public vNode: VNode) {}
+  mount(parent: Node) {
+    this.vNode.mount(parent);
+  }
+}
+
+function createApp(AppRoot: ComponentDesc) {
+  return new Vue(h(AppRoot));
 }
 
 createApp(App).mount(root);
