@@ -33,7 +33,9 @@ const App = defineComponent({
   },
 });
 
-const app = createApp(h(App, { name: "vue-lite" })).mount(root);
+const appRoot = h(App, { name: "vue-lite" });
+
+const app = createApp(appRoot).mount(root);
 
 Reflect.set(window, "app", app);
 

@@ -21,7 +21,7 @@ export function createElement<T, P>(
   children?: VNode[],
   patchFlag?: PatchFlag,
   dyProps?: string[]
-): VNode;
+): VueVNode<T, P>;
 
 export function createElement(
   tag: string,

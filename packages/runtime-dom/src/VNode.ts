@@ -56,13 +56,14 @@ export class TextVNode extends HTMLVNode {
   }
 }
 
-export class VueVNode extends VNode {
-  tag: ComponentDesc;
-  ctx;
+export class VueVNode<T = unknown, P = unknown> extends VNode<T, P> {
+  ctx: T;
 
   create() {
     let com =
-      typeof this.tag === "string" ? components.get(this.tag) : this.tag;
+      typeof this.tag === "string"
+        ? (components.get(this.tag) as VueComponent<T, P>)
+        : this.tag;
     this.ctx = com?.setup(this.props);
     this.renderedNodes = com?.render(this.ctx, this.props) || [];
     this.$el = document.createDocumentFragment();

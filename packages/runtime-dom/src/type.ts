@@ -1,9 +1,9 @@
-export class VNode {
+export class VNode<T = unknown, P = unknown> {
   $el: Node;
   renderedNodes: VNode[];
   constructor(
-    public tag: ComponentDesc,
-    public props: Props,
+    public tag: ComponentDesc<T, P>,
+    public props: Props & P,
     public children: VNode[],
     public patchFlag: PatchFlag,
     public dyProps: string[]
@@ -23,7 +23,9 @@ export class VNode {
 /**
  * 两种Tag类型，一种是string，一种是组件
  */
-export type ComponentDesc = string | VueComponent;
+export type ComponentDesc<T = unknown, P = unknown> =
+  | string
+  | VueComponent<T, P>;
 export interface VueComponent<T = unknown, P = unknown> {
   props?: P;
   setup?<G extends P>(props: G): T;
