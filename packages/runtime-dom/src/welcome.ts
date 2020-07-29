@@ -6,9 +6,14 @@ const root = document.querySelector("#app");
  * 两种Tag类型，一种是string，一种是组件
  */
 type ComponentDesc = string | VueComponent;
-interface VueComponent<T = unknown> {
-  setup?(): T;
-  render?(): VNode[];
+interface VueComponent<T = unknown, P = unknown> {
+  props?: P;
+  setup?<G extends P>(props: G): T;
+  render?<F extends T, G extends P>(_ctx: F, props: G): VNode[];
+}
+
+function defineComponent<T, P>(vueComponent: VueComponent<T, P>) {
+  return vueComponent;
 }
 
 // HTML tag
@@ -93,11 +98,15 @@ class TextVNode extends HTMLVNode {
 }
 class VueVNode extends VNode {
   tag: ComponentDesc;
+  ctx;
+
   create() {
     let com =
       typeof this.tag === "string" ? components.get(this.tag) : this.tag;
-
-    this.renderedNodes = com?.render() || [];
+    console.log("VueVNode props", this.props);
+    this.ctx = com?.setup(this.props);
+    console.log("VueVNode ctx", this.ctx);
+    this.renderedNodes = com?.render(this.ctx, this.props) || [];
     this.$el = document.createDocumentFragment();
   }
 
@@ -157,8 +166,16 @@ function createTextElement(
 const h = createElement;
 const t = createTextElement;
 
-const App: VueComponent = {
-  render: () => {
+const App = defineComponent({
+  props: {
+    name: "",
+  },
+  setup(props) {
+    return {
+      greeting: `${props.name}: hello world!`,
+    };
+  },
+  render(_ctx, _props) {
     return [
       h("div", {}, [
         t("hello world"),
@@ -166,10 +183,10 @@ const App: VueComponent = {
           "button",
           {
             onClick: () => {
-              console.log("单击");
+              console.log("单击" + _ctx.greeting);
             },
             onDblclick: () => {
-              console.log("双击");
+              console.log("双击" + _ctx.greeting);
             },
           },
           [t("我是按钮")]
@@ -177,7 +194,7 @@ const App: VueComponent = {
       ]),
     ];
   },
-};
+});
 
 class Vue {
   h = h;
@@ -189,7 +206,11 @@ class Vue {
 }
 
 function createApp(AppRoot: ComponentDesc) {
-  return new Vue(h(AppRoot));
+  return new Vue(
+    h(AppRoot, {
+      name: "vue-lite",
+    })
+  );
 }
 
 const app = createApp(App).mount(root);
