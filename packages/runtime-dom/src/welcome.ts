@@ -27,7 +27,9 @@ class VNode {
   constructor(
     public tag: ComponentDesc,
     public props: Props,
-    public children: VNode[]
+    public children: VNode[],
+    public patchFlag: PatchFlag,
+    public dyProps: string[]
   ) {
     this.create();
   }
@@ -98,26 +100,33 @@ interface Props {
   [props: string]: string;
 }
 
+enum PatchFlag {
+  static,
+  props,
+}
+
 function createElement(
   tag: ComponentDesc,
   props?: Props,
-  children?: VNode[]
+  children?: VNode[],
+  patchFlag?: PatchFlag,
+  dyProps?: string[]
 ): VNode {
   if (typeof tag === "string") {
     if (tagSet.has(tag)) {
-      return new TagVNode(tag, props, children);
+      return new TagVNode(tag, props, children, patchFlag, dyProps);
     } else if (components.has(tag)) {
-      return new VueVNode(tag, props, children);
+      return new VueVNode(tag, props, children, patchFlag, dyProps);
     } else if (tag) {
-      return new TextVNode(tag, props, children);
+      return new TextVNode(tag, props, children, patchFlag, dyProps);
     } else {
-      return new CommentVNode("", props, children);
+      return new CommentVNode("", props, children, patchFlag, dyProps);
     }
   } else if (isComponent(tag)) {
-    return new VueVNode(tag, props, children);
+    return new VueVNode(tag, props, children, patchFlag, dyProps);
   } else {
     console.error(`无效的组件${tag}`);
-    return new TagVNode(tag, props, children);
+    return new TagVNode(tag, props, children, patchFlag, dyProps);
   }
 }
 
