@@ -1,5 +1,4 @@
-import { welcome } from "./welcome";
-import { greeting } from "@vue-lite/runtime-core";
-
-console.log(greeting);
-console.log(welcome);
+export * from "./type";
+export * from "./util";
+export * from "./VNode";
+export * from "./vue";
