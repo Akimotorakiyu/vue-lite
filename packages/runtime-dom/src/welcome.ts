@@ -12,7 +12,7 @@ interface VueComponent<T = unknown> {
 }
 
 // HTML tag
-const tagSet = new Set(["span", "div"]);
+const tagSet = new Set(["span", "div", "button"]);
 
 // component tag -> component
 const components = new Map<string, VueComponent>();
@@ -118,23 +118,35 @@ function createElement(
     } else if (components.has(tag)) {
       return new VueVNode(tag, props, children, patchFlag, dyProps);
     } else if (tag) {
-      return new TextVNode(tag, props, children, patchFlag, dyProps);
+      console.error("未定义的组件，已渲染为文本组件");
+      return createTextElement(tag, props, children, patchFlag, dyProps);
     } else {
       return new CommentVNode("", props, children, patchFlag, dyProps);
     }
   } else if (isComponent(tag)) {
     return new VueVNode(tag, props, children, patchFlag, dyProps);
   } else {
-    console.error(`无效的组件${tag}`);
-    return new TagVNode(tag, props, children, patchFlag, dyProps);
+    console.error(`无效的组件${tag}，已渲染为vue组件`);
+    return new VueVNode(tag, props, children, patchFlag, dyProps);
   }
 }
 
+function createTextElement(
+  tag: ComponentDesc,
+  props?: Props,
+  children?: VNode[],
+  patchFlag?: PatchFlag,
+  dyProps?: string[]
+): VNode {
+  return new TextVNode(tag, props, children, patchFlag, dyProps);
+}
+
 const h = createElement;
+const t = createTextElement;
 
 const App: VueComponent = {
   render: () => {
-    return [h("div", {}, [h("hello world")])];
+    return [h("div", {}, [t("hello world"), h("button", {}, [t("我是按钮")])])];
   },
 };
 
@@ -143,6 +155,7 @@ class Vue {
   constructor(public vNode: VNode) {}
   mount(parent: Node) {
     this.vNode.mount(parent);
+    return this;
   }
 }
 
@@ -150,4 +163,6 @@ function createApp(AppRoot: ComponentDesc) {
   return new Vue(h(AppRoot));
 }
 
-createApp(App).mount(root);
+const app = createApp(App).mount(root);
+
+Reflect.set(window, "app", app);
