@@ -15,6 +15,22 @@ export function isComponent(tag: ComponentDesc): tag is VueComponent {
   return typeof tag !== null && typeof tag === "object" && !Array.isArray(tag);
 }
 
+export function createElement<T, P>(
+  tag: VueComponent<T, P>,
+  props?: Props & P,
+  children?: VNode[],
+  patchFlag?: PatchFlag,
+  dyProps?: string[]
+): VNode;
+
+export function createElement(
+  tag: string,
+  props?: Props,
+  children?: VNode[],
+  patchFlag?: PatchFlag,
+  dyProps?: string[]
+): VNode;
+
 export function createElement(
   tag: ComponentDesc,
   props?: Props,
@@ -42,7 +58,7 @@ export function createElement(
 }
 
 export function createTextElement(
-  tag: ComponentDesc,
+  tag: string,
   props?: Props,
   children?: VNode[],
   patchFlag?: PatchFlag,

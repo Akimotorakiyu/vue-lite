@@ -1,4 +1,4 @@
-import { ComponentDesc, VNode } from "./type";
+import { ComponentDesc, VNode, VueComponent } from "./type";
 
 import { h } from "./util";
 
@@ -11,10 +11,6 @@ export class Vue {
   }
 }
 
-export function createApp(AppRoot: ComponentDesc) {
-  return new Vue(
-    h(AppRoot, {
-      name: "vue-lite",
-    })
-  );
+export function createApp<T, P>(AppRoot: VNode) {
+  return new Vue(AppRoot);
 }

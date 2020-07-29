@@ -63,9 +63,7 @@ export class VueVNode extends VNode {
   create() {
     let com =
       typeof this.tag === "string" ? components.get(this.tag) : this.tag;
-    console.log("VueVNode props", this.props);
     this.ctx = com?.setup(this.props);
-    console.log("VueVNode ctx", this.ctx);
     this.renderedNodes = com?.render(this.ctx, this.props) || [];
     this.$el = document.createDocumentFragment();
   }
