@@ -51,6 +51,19 @@ class TagVNode extends HTMLVNode {
   tag: string;
   create() {
     this.$el = document.createElement(this.tag);
+
+    // 添加事件
+    Object.entries(this.props)
+      .filter((prop) => {
+        return prop[0].startsWith("on");
+      })
+      .forEach((prop) => {
+        if (typeof prop[1] === "function") {
+          this.$el.addEventListener(prop[0].slice(2).toLowerCase(), prop[1]);
+        } else {
+          console.error(`事件监听器的值须为函数${prop[0]} ${prop[0].slice(2)}`);
+        }
+      });
   }
   mount(parent: Node) {
     this.children?.forEach((ele) => {
@@ -97,7 +110,7 @@ class VueVNode extends VNode {
 }
 
 interface Props {
-  [props: string]: string;
+  [props: string]: string | (() => void);
 }
 
 enum PatchFlag {
@@ -146,7 +159,23 @@ const t = createTextElement;
 
 const App: VueComponent = {
   render: () => {
-    return [h("div", {}, [t("hello world"), h("button", {}, [t("我是按钮")])])];
+    return [
+      h("div", {}, [
+        t("hello world"),
+        h(
+          "button",
+          {
+            onClick: () => {
+              console.log("单击");
+            },
+            onDblclick: () => {
+              console.log("双击");
+            },
+          },
+          [t("我是按钮")]
+        ),
+      ]),
+    ];
   },
 };
 
@@ -166,3 +195,5 @@ function createApp(AppRoot: ComponentDesc) {
 const app = createApp(App).mount(root);
 
 Reflect.set(window, "app", app);
+
+console.log(app, JSON.stringify(app, undefined, 2));
