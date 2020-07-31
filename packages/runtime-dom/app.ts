@@ -1,7 +1,11 @@
-import { defineComponent, t, h, createApp } from "./src";
+import { defineComponent, t, h, createApp, ob, cb, PatchFlag } from "./src";
 export const welcome = "greeting: runtime-dom!";
 
 const root = document.querySelector("#app");
+
+function toString(o: any) {
+  return JSON.stringify(o);
+}
 
 const App = defineComponent({
   props: {
@@ -14,8 +18,9 @@ const App = defineComponent({
   },
   render(_ctx, _props) {
     return [
-      h("div", {}, [
-        t("hello world"),
+      (ob(),
+      cb("div", {}, [
+        t("hello world" + 1 + JSON.stringify(_ctx), {}, [], PatchFlag.props),
         h(
           "button",
           {
@@ -28,7 +33,7 @@ const App = defineComponent({
           },
           [t("我是按钮")]
         ),
-      ]),
+      ])),
     ];
   },
 });

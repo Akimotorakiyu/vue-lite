@@ -7,6 +7,7 @@ import {
   CommentVNode,
   TextVNode,
 } from "./VNode";
+
 export function defineComponent<T, P>(vueComponent: VueComponent<T, P>) {
   return vueComponent;
 }
@@ -38,23 +39,30 @@ export function createElement(
   patchFlag?: PatchFlag,
   dyProps?: string[]
 ): VNode {
+  let vNode: VNode;
+
   if (typeof tag === "string") {
     if (tagSet.has(tag)) {
-      return new TagVNode(tag, props, children, patchFlag, dyProps);
+      vNode = new TagVNode(tag, props, children, patchFlag, dyProps);
     } else if (components.has(tag)) {
-      return new VueVNode(tag, props, children, patchFlag, dyProps);
+      vNode = new VueVNode(tag, props, children, patchFlag, dyProps);
     } else if (tag) {
       console.error("未定义的组件，已渲染为文本组件");
-      return createTextElement(tag, props, children, patchFlag, dyProps);
+      vNode = createTextElement(tag, props, children, patchFlag, dyProps);
     } else {
-      return new CommentVNode("", props, children, patchFlag, dyProps);
+      vNode = new CommentVNode("", props, children, patchFlag, dyProps);
     }
   } else if (isComponent(tag)) {
-    return new VueVNode(tag, props, children, patchFlag, dyProps);
+    vNode = new VueVNode(tag, props, children, patchFlag, dyProps);
   } else {
     console.error(`无效的组件${tag}，已渲染为vue组件`);
-    return new VueVNode(tag, props, children, patchFlag, dyProps);
+    vNode = new VueVNode(tag, props, children, patchFlag, dyProps);
   }
+  if (patchFlag) {
+    currentBlock.push(vNode);
+  }
+
+  return vNode;
 }
 
 export function createTextElement(
@@ -64,8 +72,35 @@ export function createTextElement(
   patchFlag?: PatchFlag,
   dyProps?: string[]
 ): VNode {
-  return new TextVNode(tag, props, children, patchFlag, dyProps);
+  const vNode = new TextVNode(tag, props, children, patchFlag, dyProps);
+  if (patchFlag) {
+    currentBlock.push(vNode);
+  }
+  return vNode;
+}
+
+const blockStack: VNode[][] = [];
+let currentBlock: VNode[] = null;
+
+export function openBlock() {
+  blockStack.push((currentBlock = []));
+}
+
+export function createBlock(...args: Parameters<typeof createElement>) {
+  const vNode = createElement(...args);
+
+  vNode.dynamicChildren = currentBlock;
+
+  blockStack.pop();
+
+  currentBlock = blockStack[blockStack.length - 1] || null;
+  if (currentBlock) {
+    currentBlock.push(vNode);
+  }
+  return vNode;
 }
 
 export const h = createElement;
 export const t = createTextElement;
+export const ob = openBlock;
+export const cb = createBlock;

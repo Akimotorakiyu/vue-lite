@@ -1,6 +1,7 @@
 export class VNode<T = unknown, P = unknown> {
   $el: Node;
   renderedNodes: VNode[];
+  dynamicChildren: VNode[];
   constructor(
     public tag: ComponentDesc<T, P>,
     public props: Props & P,
