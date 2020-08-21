@@ -21,8 +21,8 @@
     "pretty-quick": "^2.0.1",
     "ts-jest": "^26.1.2",
     "ts-node": "^8.10.2",
-    "ts-node-dev": "^1.0.0-pre.51",
-    "typescript": "^4.0.0-beta"
+    "ts-node-dev": "^1.0.0",
+    "typescript": "^4.0.0"
   },
   "husky": {
     "hooks": {
