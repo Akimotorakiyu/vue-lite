@@ -20,7 +20,7 @@ let currentInstance: VueLiteHTMLElement<{}> | null = null;
 
 export function defineComponent<P>(
   name: string,
-  propDefs: any[],
+  propDefs: P,
   factory: (props: P) => () => TemplateResult,
   option?: ElementDefinitionOptions
 ) {
@@ -28,7 +28,7 @@ export function defineComponent<P>(
     name,
     class extends VueLiteHTMLElement<P> {
       static get observedAttributes() {
-        return propDefs;
+        return Object.keys(propDefs);
       }
 
       constructor() {

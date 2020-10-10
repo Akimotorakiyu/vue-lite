@@ -27,7 +27,7 @@ defineComponent("my-component", [], () => {
   `;
 });
 
-defineComponent<{ msg: string }>("my-child", ["msg"], (props) => {
+defineComponent<{ msg: string }>("my-child", { msg: "" }, (props) => {
   const state = reactive({ count: 0 });
   const increase = () => {
     state.count++;
