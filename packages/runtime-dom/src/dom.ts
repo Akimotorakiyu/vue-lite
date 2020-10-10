@@ -1,60 +1,69 @@
-import { render } from "lit-html";
+import { render, html, TemplateResult } from "lit-html";
 export { html, TemplateResult } from "lit-html";
 
 import { effect, reactive } from "@vue-lite/reactivity";
 export { reactive } from "@vue-lite/reactivity";
 
-let currentInstance: HTMLElement = null;
+export type CallBack<Args extends unknown[] = unknown[], V = void> = (
+  ...args: Args
+) => V;
 
-export function defineComponent(name: string, propDefs: any[], factory) {
+class VueLiteHTMLElement extends HTMLElement {
+  _props = reactive({});
+  _onBeforeMount: CallBack[] = [];
+  _onMounted: CallBack[] = [];
+  _onBeforeUpdate: CallBack[] = [];
+  _onUpdated: CallBack[] = [];
+  _onUnmounted: CallBack[] = [];
+}
+let currentInstance: VueLiteHTMLElement | null = null;
+
+export function defineComponent<P>(
+  name: string,
+  propDefs: any[],
+  factory: (props: P) => () => TemplateResult
+) {
   customElements.define(
     name,
-    class extends HTMLElement {
+    class extends VueLiteHTMLElement {
       static get observedAttributes() {
         return propDefs;
       }
-      _props = reactive({});
-      _bm = [];
-      _bu = [];
-      _u = [];
-      _m = [];
-      _um = [];
 
       constructor() {
         super();
         const props = this._props;
         currentInstance = this;
-        const template = factory.call(this, props);
+        const template = factory.call(this, (props as unknown) as P);
         currentInstance = null;
-        this._bm && this._bm.forEach((cb) => cb());
+        this._onBeforeMount && this._onBeforeMount.forEach((cb) => cb());
         const root = this.attachShadow({ mode: "closed" });
         let isMounted = false;
         effect(() => {
           if (!isMounted) {
-            this._bu && this._bu.forEach((cb) => cb());
+            this._onBeforeUpdate && this._onBeforeUpdate.forEach((cb) => cb());
           }
           render(template(), root);
           if (isMounted) {
-            this._u && this._u.forEach((cb) => cb());
+            this._onUpdated && this._onUpdated.forEach((cb) => cb());
           } else {
             isMounted = true;
           }
         });
       }
       connectedCallback() {
-        this._m && this._m.forEach((cb) => cb());
+        this._onMounted && this._onMounted.forEach((cb) => cb());
       }
       disconnectedCallback() {
-        this._um && this._um.forEach((cb) => cb());
-      }
-      attributeChangedCallback(name, oldValue, newValue) {
-        this._props[name] = newValue;
+        this._onUnmounted && this._onUnmounted.forEach((cb) => cb());
       }
     }
   );
 }
 
-function createLifecycleMethod(name: string) {
+function createLifecycleMethod(
+  name: Exclude<keyof VueLiteHTMLElement, keyof HTMLElement | "_props">
+) {
   return (cb: () => void) => {
     if (currentInstance) {
       (currentInstance[name] || (currentInstance[name] = [])).push(cb);
@@ -62,8 +71,12 @@ function createLifecycleMethod(name: string) {
   };
 }
 
-export const onBeforeMount = createLifecycleMethod("_bm");
-export const onMounted = createLifecycleMethod("_m");
-export const onBeforeUpdate = createLifecycleMethod("_bu");
-export const onUpdated = createLifecycleMethod("_u");
-export const onUnmounted = createLifecycleMethod("_um");
+export const getInstance = () => {
+  return currentInstance;
+};
+
+export const onBeforeMount = createLifecycleMethod("_onBeforeMount");
+export const onMounted = createLifecycleMethod("_onMounted");
+export const onBeforeUpdate = createLifecycleMethod("_onBeforeUpdate");
+export const onUpdated = createLifecycleMethod("_onUpdated");
+export const onUnmounted = createLifecycleMethod("_onUnmounted");

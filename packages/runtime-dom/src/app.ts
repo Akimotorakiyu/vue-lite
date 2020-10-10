@@ -15,8 +15,9 @@ defineComponent("my-component", [], () => {
   const toggle = () => {
     state.show = !state.show;
   };
-  const onInput = (e) => {
-    state.text = e.target.value;
+  const onInput = (e: InputEvent) => {
+    const inputElement = <HTMLInputElement>e.target!;
+    state.text = inputElement.value;
   };
 
   return () => html`
@@ -26,7 +27,7 @@ defineComponent("my-component", [], () => {
   `;
 });
 
-defineComponent("my-child", ["msg"], (props) => {
+defineComponent<{ msg: string }>("my-child", ["msg"], (props) => {
   const state = reactive({ count: 0 });
   const increase = () => {
     state.count++;
@@ -52,4 +53,4 @@ defineComponent("my-child", ["msg"], (props) => {
 });
 
 const myCom = document.createElement("my-component");
-document.getElementById("app").appendChild(myCom);
+document.getElementById("app")!.appendChild(myCom);
