@@ -1,5 +1,6 @@
-import { welcome } from "./welcome";
+import {} from "./dom";
+import "./app";
+
 import { greeting } from "@vue-lite/runtime-core";
 
 console.log(greeting);
-console.log(welcome);
