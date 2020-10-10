@@ -1,8 +1,8 @@
-import { render, html, TemplateResult } from "lit-html";
-export { html, TemplateResult } from "lit-html";
+import { render, TemplateResult } from "lit-html";
+export * from "lit-html";
 
 import { effect, reactive } from "@vue-lite/reactivity";
-export { reactive } from "@vue-lite/reactivity";
+export * from "@vue-lite/reactivity";
 
 export type CallBack<Args extends unknown[] = unknown[], V = void> = (
   ...args: Args
