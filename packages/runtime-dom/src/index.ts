@@ -38,7 +38,7 @@ export function defineComponent<P>(
         const root = this.attachShadow({ mode: "closed" });
         let isMounted = false;
         effect(() => {
-          if (!isMounted) {
+          if (isMounted) {
             this._onBeforeUpdate.forEach((cb) => cb());
           }
           render(template(), root);
