@@ -21,15 +21,12 @@ let currentInstance: VueLiteHTMLElement<{}> | null = null;
 export function defineComponent<P>(
   name: string,
   propDefs: any[],
-  factory: (props: P) => () => TemplateResult
+  factory: (props: P) => () => TemplateResult,
+  option?: ElementDefinitionOptions
 ) {
   customElements.define(
     name,
     class extends VueLiteHTMLElement<P> {
-      static get observedAttributes() {
-        return propDefs;
-      }
-
       constructor() {
         super();
         const props = this._props;
@@ -61,7 +58,8 @@ export function defineComponent<P>(
       attributeChangedCallback(name: keyof P, oldValue: any, newValue: any) {
         this._props[name] = newValue;
       }
-    }
+    },
+    option
   );
 }
 
