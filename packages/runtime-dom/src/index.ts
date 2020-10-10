@@ -27,6 +27,10 @@ export function defineComponent<P>(
   customElements.define(
     name,
     class extends VueLiteHTMLElement<P> {
+      static get observedAttributes() {
+        return propDefs;
+      }
+
       constructor() {
         super();
         const props = this._props;
