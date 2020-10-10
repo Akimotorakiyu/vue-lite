@@ -5,7 +5,7 @@ import {
   onMounted,
   onUpdated,
   onUnmounted,
-} from "./dom";
+} from "../src";
 
 defineComponent("my-component", [], () => {
   const state = reactive({
