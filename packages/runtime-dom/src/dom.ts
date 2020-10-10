@@ -8,15 +8,15 @@ export type CallBack<Args extends unknown[] = unknown[], V = void> = (
   ...args: Args
 ) => V;
 
-class VueLiteHTMLElement<P> extends HTMLElement {
-  _props = reactive<any>({});
+class VueLiteHTMLElement<P extends {}> extends HTMLElement {
+  _props = reactive<P>({} as P);
   _onBeforeMount: CallBack[] = [];
   _onMounted: CallBack[] = [];
   _onBeforeUpdate: CallBack[] = [];
   _onUpdated: CallBack[] = [];
   _onUnmounted: CallBack[] = [];
 }
-let currentInstance: VueLiteHTMLElement<unknown> | null = null;
+let currentInstance: VueLiteHTMLElement<{}> | null = null;
 
 export function defineComponent<P>(
   name: string,
@@ -33,6 +33,7 @@ export function defineComponent<P>(
       constructor() {
         super();
         const props = this._props;
+        console.log(name, this);
         currentInstance = this;
         const template = factory.call(this, (props as unknown) as P);
         currentInstance = null;
@@ -57,7 +58,7 @@ export function defineComponent<P>(
       disconnectedCallback() {
         this._onUnmounted.forEach((cb) => cb());
       }
-      attributeChangedCallback(name: string, oldValue: any, newValue: any) {
+      attributeChangedCallback(name: keyof P, oldValue: any, newValue: any) {
         this._props[name] = newValue;
       }
     }
@@ -65,7 +66,7 @@ export function defineComponent<P>(
 }
 
 function createLifecycleMethod(
-  name: Exclude<keyof VueLiteHTMLElement<unknown>, keyof HTMLElement | "_props">
+  name: Exclude<keyof VueLiteHTMLElement<{}>, keyof HTMLElement | "_props">
 ) {
   return (cb: () => void) => {
     if (currentInstance) {
