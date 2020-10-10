@@ -8,15 +8,15 @@ export type CallBack<Args extends unknown[] = unknown[], V = void> = (
   ...args: Args
 ) => V;
 
-class VueLiteHTMLElement extends HTMLElement {
-  _props = reactive({});
+class VueLiteHTMLElement<P> extends HTMLElement {
+  _props = reactive<any>({});
   _onBeforeMount: CallBack[] = [];
   _onMounted: CallBack[] = [];
   _onBeforeUpdate: CallBack[] = [];
   _onUpdated: CallBack[] = [];
   _onUnmounted: CallBack[] = [];
 }
-let currentInstance: VueLiteHTMLElement | null = null;
+let currentInstance: VueLiteHTMLElement<unknown> | null = null;
 
 export function defineComponent<P>(
   name: string,
@@ -25,7 +25,7 @@ export function defineComponent<P>(
 ) {
   customElements.define(
     name,
-    class extends VueLiteHTMLElement {
+    class extends VueLiteHTMLElement<P> {
       static get observedAttributes() {
         return propDefs;
       }
@@ -36,37 +36,40 @@ export function defineComponent<P>(
         currentInstance = this;
         const template = factory.call(this, (props as unknown) as P);
         currentInstance = null;
-        this._onBeforeMount && this._onBeforeMount.forEach((cb) => cb());
+        this._onBeforeMount.forEach((cb) => cb());
         const root = this.attachShadow({ mode: "closed" });
         let isMounted = false;
         effect(() => {
           if (!isMounted) {
-            this._onBeforeUpdate && this._onBeforeUpdate.forEach((cb) => cb());
+            this._onBeforeUpdate.forEach((cb) => cb());
           }
           render(template(), root);
           if (isMounted) {
-            this._onUpdated && this._onUpdated.forEach((cb) => cb());
+            this._onUpdated.forEach((cb) => cb());
           } else {
             isMounted = true;
           }
         });
       }
       connectedCallback() {
-        this._onMounted && this._onMounted.forEach((cb) => cb());
+        this._onMounted.forEach((cb) => cb());
       }
       disconnectedCallback() {
-        this._onUnmounted && this._onUnmounted.forEach((cb) => cb());
+        this._onUnmounted.forEach((cb) => cb());
+      }
+      attributeChangedCallback(name: string, oldValue: any, newValue: any) {
+        this._props[name] = newValue;
       }
     }
   );
 }
 
 function createLifecycleMethod(
-  name: Exclude<keyof VueLiteHTMLElement, keyof HTMLElement | "_props">
+  name: Exclude<keyof VueLiteHTMLElement<unknown>, keyof HTMLElement | "_props">
 ) {
   return (cb: () => void) => {
     if (currentInstance) {
-      (currentInstance[name] || (currentInstance[name] = [])).push(cb);
+      currentInstance[name].push(cb);
     }
   };
 }
