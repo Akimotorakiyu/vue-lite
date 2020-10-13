@@ -6,7 +6,7 @@
 
 ## reactive: alpha
 
-`reactive`, `effect`, `computed`, `custom reactivity`.
+`reactive`, `effect`, `computed`, support `custom reactivity`.
 
 ## runtime-dom-lit-html: alpha
 
