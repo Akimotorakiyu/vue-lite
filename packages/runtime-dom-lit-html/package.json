@@ -1,5 +1,5 @@
 {
-  "name": "@vue-lite/runtime-dom",
+  "name": "@vue-lite/runtime-dom-lit-html",
   "version": "1.0.0",
   "main": "src/index.ts",
   "license": "MIT",

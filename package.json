@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "test": "jest",
-    "serve": "yarn workspace @vue-lite/runtime-dom  serve"
+    "serve": "yarn workspace @vue-lite/runtime-dom-lit-html  serve"
   },
   "devDependencies": {
     "@types/jest": "^26.0.4",

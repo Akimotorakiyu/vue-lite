@@ -8,6 +8,10 @@
 
 `reactive`, `effect`, `computed`, `custom reactivity`.
 
+## runtime-dom-lit-html: alpha
+
+use `lit-html` as runtime-dom. Inspiration from [`vue-lit`](https://github.com/yyx990803/vue-lit)
+
 ## pending
 
 `runtime-core`,`runtime-dom`
