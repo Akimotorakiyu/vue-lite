@@ -4,7 +4,8 @@
   "main": "src/index.ts",
   "license": "MIT",
   "scripts": {
-    "serve": "vite serve"
+    "serve": "vite serve",
+    "build": "vite build"
   },
   "devDependencies": {
     "vite": "^1.0.0-rc.4"
