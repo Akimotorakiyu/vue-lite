@@ -6,7 +6,7 @@ const config: UserConfig = {
     // i18n,
   },
   outDir: "../../docs/",
-  base: "./vue-lite",
+  base: "/vue-lite",
 };
 
 export default config;
