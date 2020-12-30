@@ -7,7 +7,7 @@ import {
   onUnmounted,
 } from "../src";
 
-defineComponent("my-component", [], () => {
+defineComponent("my-component", {}, () => {
   const state = reactive({
     text: "hello",
     show: true,
@@ -27,7 +27,7 @@ defineComponent("my-component", [], () => {
   `;
 });
 
-defineComponent<{ msg: string }>("my-child", { msg: "" }, (props) => {
+defineComponent("my-child", { msg: "" }, (props) => {
   const state = reactive({ count: 0 });
   const increase = () => {
     state.count++;
